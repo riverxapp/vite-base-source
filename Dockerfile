@@ -8,11 +8,17 @@ RUN apt-get update \
 
 RUN corepack enable && corepack prepare pnpm@10.26.2 --activate
 
-COPY package.json ./
+COPY package.json pnpm-lock.yaml* ./
 RUN rm -rf node_modules && pnpm install --prefer-offline --no-frozen-lockfile
 
 COPY . .
 
-EXPOSE 3000
+ENV NODE_ENV=development
+ENV HOST=0.0.0.0
+ENV PORT=5173
+ENV CHOKIDAR_USEPOLLING=true
+ENV CHOKIDAR_INTERVAL=100
 
-CMD ["node", "scripts/dev-supervisor.js"]
+EXPOSE 5173
+
+CMD ["pnpm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
