@@ -1,10 +1,8 @@
-FROM node:22-slim
+FROM node:22-alpine
 
 WORKDIR /app
 
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends git ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache git ca-certificates
 
 RUN corepack enable && corepack prepare pnpm@10.26.2 --activate
 
@@ -18,6 +16,6 @@ ENV HOST=0.0.0.0
 ENV CHOKIDAR_USEPOLLING=true
 ENV CHOKIDAR_INTERVAL=100
 
-EXPOSE 3000
+EXPOSE 8080
 
 CMD ["node", "scripts/dev-supervisor.js"]

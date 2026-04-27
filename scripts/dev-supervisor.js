@@ -15,7 +15,7 @@ function resolvePort(value) {
   const raw = String(value ?? "").trim();
   const normalized = raw.replace(/^['"]|['"]$/g, "");
   const port = Number.parseInt(normalized, 10);
-  if (!Number.isFinite(port) || port < 0) return "3000";
+  if (!Number.isFinite(port) || port < 0) return "8080";
   return String(port);
 }
 
