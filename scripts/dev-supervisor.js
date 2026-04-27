@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const BRANCH = process.env.PREVIEW_BRANCH || "main";
 const REPO_URL = process.env.REPO_URL;
-const nextDevRaw = process.env.NEXT_DEV;
+const appDevRaw = process.env.VITE_DEV ?? process.env.NEXT_DEV;
 const gitBootstrapRaw = process.env.GIT_BOOTSTRAP;
 const gitPollRaw = process.env.GIT_POLL;
 const healthPathRaw = process.env.HEALTHCHECK_PATH;
@@ -26,8 +26,9 @@ function parseBoolean(value, defaultValue) {
   return !["false", "0", "no", "off"].includes(String(value).toLowerCase());
 }
 
-const NEXT_DEV = parseBoolean(nextDevRaw, true);
-// Railway/runtime images often start without .git; when REPO_URL is provided,
+// Backward compatible: NEXT_DEV still works, but VITE_DEV is preferred.
+const APP_DEV = parseBoolean(appDevRaw, true);
+// Runtime images often start without .git; when REPO_URL is provided,
 // bootstrap by default so polling has a repo to work with.
 const GIT_BOOTSTRAP = parseBoolean(gitBootstrapRaw, Boolean(REPO_URL));
 // Default on so repo-sync behavior is active unless explicitly disabled.
@@ -52,8 +53,8 @@ function run(name, cmd, args, envOverrides = {}) {
   return p;
 }
 
-function getNextCommand() {
-  const binName = process.platform === "win32" ? "next.cmd" : "next";
+function getViteCommand() {
+  const binName = process.platform === "win32" ? "vite.cmd" : "vite";
   const candidates = [
     path.join(scriptDir, "..", "node_modules", ".bin", binName),
     path.join(process.cwd(), "node_modules", ".bin", binName),
@@ -66,9 +67,9 @@ function getNextCommand() {
 
   // Fallback keeps the service bootable even when .bin symlinks are missing.
   console.warn(
-    `[supervisor] ${binName} not found at expected paths. Falling back to 'pnpm exec next'. Tried:\n${candidates.join("\n")}`
+    `[supervisor] ${binName} not found at expected paths. Falling back to 'pnpm exec vite'. Tried:\n${candidates.join("\n")}`
   );
-  return { cmd: "pnpm", args: ["exec", "next"] };
+  return { cmd: "pnpm", args: ["exec", "vite"] };
 }
 
 function execAsync(cmd) {
@@ -99,7 +100,7 @@ async function bootstrapGit() {
 
   console.log("[supervisor] bootstrapping git repo");
   // Intentionally no "git clean -fd": it can delete node_modules in runtime
-  // containers and cause "next not found" failures on restart.
+  // containers and cause Vite startup failures on restart.
   const cmds = [
     "git init",
     `git remote add origin ${REPO_URL}`,
@@ -133,18 +134,19 @@ async function warmup() {
   console.warn("[supervisor] warmup timed out after 45s");
 }
 
-// --- Start Next.js immediately ---
+// --- Start Vite immediately ---
 
-if (NEXT_DEV) {
-  const nextCommand = getNextCommand();
-  console.log("[supervisor] starting Next.js dev server (turbo)");
-  run("next-dev", nextCommand.cmd, [...nextCommand.args, "dev", "--turbo", "-p", PORT], {
+const viteCommand = getViteCommand();
+if (APP_DEV) {
+  console.log("[supervisor] starting Vite dev server");
+  run("vite-dev", viteCommand.cmd, [...viteCommand.args, "--host", "0.0.0.0", "--port", PORT], {
     NODE_ENV: "development",
   });
 } else {
-  const nextCommand = getNextCommand();
-  console.log("[supervisor] starting Next.js production server");
-  run("next-start", nextCommand.cmd, [...nextCommand.args, "start", "-p", PORT]);
+  console.log("[supervisor] starting Vite preview server");
+  run("vite-preview", viteCommand.cmd, [...viteCommand.args, "preview", "--host", "0.0.0.0", "--port", PORT], {
+    NODE_ENV: "production",
+  });
 }
 
 // --- Async tasks: warmup, git bootstrap, deferred git-poll ---
