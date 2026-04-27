@@ -38,7 +38,7 @@ const HEALTHCHECK_PATH =
     ? healthPathRaw.trim()
     : "/";
 
-function run(name, cmd, args, envOverrides = {}) {
+function run(name, cmd, args, envOverrides = {}, { exitOnFailure = true } = {}) {
   const p = spawn(cmd, args, {
     stdio: "inherit",
     shell: false,
@@ -47,7 +47,9 @@ function run(name, cmd, args, envOverrides = {}) {
 
   p.on("exit", (code) => {
     console.error(`[supervisor] ${name} exited with code ${code}`);
-    process.exit(code ?? 1);
+    if (exitOnFailure) {
+      process.exit(code ?? 1);
+    }
   });
 
   return p;
@@ -163,7 +165,7 @@ bootstrapGit().catch((err) => {
 if (GIT_POLL) {
   setTimeout(() => {
     console.log("[supervisor] starting git poller");
-    run("git-poll", "node", ["scripts/git-poll.js"]);
+    run("git-poll", "node", ["scripts/git-poll.js"], {}, { exitOnFailure: false });
   }, 30_000);
 } else {
   console.log("[supervisor] git poller disabled (set GIT_POLL=true to enable)");
