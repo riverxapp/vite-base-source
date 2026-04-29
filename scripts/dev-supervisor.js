@@ -15,7 +15,7 @@ function resolvePort(value) {
   const raw = String(value ?? "").trim();
   const normalized = raw.replace(/^['"]|['"]$/g, "");
   const port = Number.parseInt(normalized, 10);
-  if (!Number.isFinite(port) || port < 0) return "8080";
+  if (!Number.isFinite(port) || port <= 0) return "5173";
   return String(port);
 }
 
@@ -141,12 +141,12 @@ async function warmup() {
 const viteCommand = getViteCommand();
 if (APP_DEV) {
   console.log("[supervisor] starting Vite dev server");
-  run("vite-dev", viteCommand.cmd, [...viteCommand.args, "--host", "0.0.0.0", "--port", PORT], {
+  run("vite-dev", viteCommand.cmd, [...viteCommand.args, "--host", "0.0.0.0", "--strictPort", "--port", PORT], {
     NODE_ENV: "development",
   });
 } else {
   console.log("[supervisor] starting Vite preview server");
-  run("vite-preview", viteCommand.cmd, [...viteCommand.args, "preview", "--host", "0.0.0.0", "--port", PORT], {
+  run("vite-preview", viteCommand.cmd, [...viteCommand.args, "preview", "--host", "0.0.0.0", "--strictPort", "--port", PORT], {
     NODE_ENV: "production",
   });
 }

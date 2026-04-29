@@ -13,7 +13,7 @@ pnpm install
 Start development server:
 
 ```bash
-pnpm run dev
+pnpm dev
 ```
 
 Build for production:
@@ -25,14 +25,27 @@ pnpm run build
 Preview production build:
 
 ```bash
-pnpm run preview
+pnpm preview
 ```
 
 Type check:
 
 ```bash
-pnpm run typecheck
+pnpm typecheck
 ```
+
+Validate dev runtime defaults:
+
+```bash
+pnpm verify:dev-runtime
+```
+
+Dev runtime defaults:
+
+- Host: `0.0.0.0`
+- Port: `5173`
+- Strict port mode: enabled (fails fast if port is occupied)
+- Override examples: `PORT=3001 pnpm dev` or `pnpm dev -- --port 3001`
 
 ## Environment Variables
 

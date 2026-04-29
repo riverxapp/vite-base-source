@@ -5,7 +5,9 @@ import react from "@vitejs/plugin-react";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const port = Number.parseInt(process.env.PORT ?? "8080", 10) || 8080;
+const DEFAULT_PORT = 5173;
+const rawPort = Number.parseInt(process.env.PORT ?? String(DEFAULT_PORT), 10);
+const port = Number.isFinite(rawPort) && rawPort > 0 ? rawPort : DEFAULT_PORT;
 
 function extractRepoName(repoUrl?: string) {
   if (!repoUrl) return "";
