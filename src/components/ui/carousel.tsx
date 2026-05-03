@@ -13,24 +13,47 @@ type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
 type CarouselOptions = UseCarouselParameters[0]
 type CarouselPlugin = UseCarouselParameters[1]
+type Orientation = "horizontal" | "vertical"
 
 type CarouselProps = {
   opts?: CarouselOptions
   plugins?: CarouselPlugin
-  orientation?: "horizontal" | "vertical"
+  orientation?: Orientation
   setApi?: (api: CarouselApi) => void
 }
 
 type CarouselContextProps = {
   carouselRef: ReturnType<typeof useEmblaCarousel>[0]
   api: ReturnType<typeof useEmblaCarousel>[1]
+  opts?: CarouselOptions
+  orientation: Orientation
   scrollPrev: () => void
   scrollNext: () => void
   canScrollPrev: boolean
   canScrollNext: boolean
-} & CarouselProps
+}
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null)
+const ORIENTATION_AXIS: Record<Orientation, "x" | "y"> = {
+  horizontal: "x",
+  vertical: "y",
+}
+const PREV_BUTTON_POSITION: Record<Orientation, string> = {
+  horizontal: "-left-12 top-1/2 -translate-y-1/2",
+  vertical: "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+}
+const NEXT_BUTTON_POSITION: Record<Orientation, string> = {
+  horizontal: "-right-12 top-1/2 -translate-y-1/2",
+  vertical: "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+}
+const CONTENT_ORIENTATION_CLASS: Record<Orientation, string> = {
+  horizontal: "-ml-4",
+  vertical: "-mt-4 flex-col",
+}
+const ITEM_ORIENTATION_CLASS: Record<Orientation, string> = {
+  horizontal: "pl-4",
+  vertical: "pt-4",
+}
 
 function useCarousel() {
   const context = React.useContext(CarouselContext)
@@ -61,7 +84,7 @@ const Carousel = React.forwardRef<
     const [carouselRef, api] = useEmblaCarousel(
       {
         ...opts,
-        axis: orientation === "horizontal" ? "x" : "y",
+        axis: ORIENTATION_AXIS[orientation],
       },
       plugins
     )
@@ -97,6 +120,31 @@ const Carousel = React.forwardRef<
       },
       [scrollPrev, scrollNext]
     )
+    const resolvedOrientation =
+      orientation || (opts?.axis === "y" ? "vertical" : "horizontal")
+
+    const contextValue = React.useMemo(
+      () => ({
+        carouselRef,
+        api,
+        opts,
+        orientation: resolvedOrientation,
+        scrollPrev,
+        scrollNext,
+        canScrollPrev,
+        canScrollNext,
+      }),
+      [
+        carouselRef,
+        api,
+        opts,
+        resolvedOrientation,
+        scrollPrev,
+        scrollNext,
+        canScrollPrev,
+        canScrollNext,
+      ]
+    )
 
     React.useEffect(() => {
       if (!api || !setApi) {
@@ -116,24 +164,13 @@ const Carousel = React.forwardRef<
       api.on("select", onSelect)
 
       return () => {
-        api?.off("select", onSelect)
+        api.off("reInit", onSelect)
+        api.off("select", onSelect)
       }
     }, [api, onSelect])
 
     return (
-      <CarouselContext.Provider
-        value={{
-          carouselRef,
-          api: api,
-          opts,
-          orientation:
-            orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
-          scrollPrev,
-          scrollNext,
-          canScrollPrev,
-          canScrollNext,
-        }}
-      >
+      <CarouselContext.Provider value={contextValue}>
         <div
           ref={ref}
           onKeyDownCapture={handleKeyDown}
@@ -162,7 +199,7 @@ const CarouselContent = React.forwardRef<
         ref={ref}
         className={cn(
           "flex",
-          orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
+          CONTENT_ORIENTATION_CLASS[orientation],
           className
         )}
         {...props}
@@ -185,7 +222,7 @@ const CarouselItem = React.forwardRef<
       aria-roledescription="slide"
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
-        orientation === "horizontal" ? "pl-4" : "pt-4",
+        ITEM_ORIENTATION_CLASS[orientation],
         className
       )}
       {...props}
@@ -207,9 +244,7 @@ const CarouselPrevious = React.forwardRef<
       size={size}
       className={cn(
         "absolute  h-8 w-8 rounded-full",
-        orientation === "horizontal"
-          ? "-left-12 top-1/2 -translate-y-1/2"
-          : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+        PREV_BUTTON_POSITION[orientation],
         className
       )}
       disabled={!canScrollPrev}
@@ -236,9 +271,7 @@ const CarouselNext = React.forwardRef<
       size={size}
       className={cn(
         "absolute h-8 w-8 rounded-full",
-        orientation === "horizontal"
-          ? "-right-12 top-1/2 -translate-y-1/2"
-          : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+        NEXT_BUTTON_POSITION[orientation],
         className
       )}
       disabled={!canScrollNext}
