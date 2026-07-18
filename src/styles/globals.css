@@ -1,59 +1,54 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+* {
+  box-sizing: border-box;
+}
 
-@layer base {
-  :root {
-    --background: 36 100% 98%;
-    --foreground: 24 47% 10%;
-    --card: 36 100% 98%;
-    --card-foreground: 24 47% 10%;
-    --primary: 11 100% 64%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 31 100% 95%;
-    --secondary-foreground: 24 47% 10%;
-    --muted: 33 100% 95%;
-    --muted-foreground: 27 20% 38%;
-    --accent: 31 100% 93%;
-    --accent-foreground: 24 47% 10%;
-    --border: 31 57% 87%;
-    --input: 31 57% 87%;
-    --ring: 11 67% 50%;
-    --radius: 0.75rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #171717;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  * {
-    @apply border-border;
-  }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #ffffff;
+}
 
-  html,
-  body,
-  #root {
-    min-height: 100%;
-  }
+#root {
+  min-height: 100vh;
+}
 
-  body {
-    @apply bg-background text-foreground antialiased;
-    background-image:
-      radial-gradient(circle at 12% -4%, rgba(255, 157, 122, 0.22), transparent 34%),
-      radial-gradient(circle at 88% -10%, rgba(255, 107, 74, 0.16), transparent 40%);
-  }
-  .dark {
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+.open-for-editing {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.open-for-editing__icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 14px;
+}
+
+.open-for-editing h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.open-for-editing p {
+  margin: 8px 0 0;
+  color: #666666;
+  font-size: 14px;
+  line-height: 1.4;
 }
