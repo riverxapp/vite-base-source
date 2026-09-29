@@ -47,6 +47,7 @@ Structural index for the current RiverX base Vite template.
 - `.env.example`
 - `README.md`
 - `RULES.md`
+- `DATABASE.md`
 - `DESIGN.md`
 
 ## Scripts
