@@ -58,6 +58,8 @@ Current runtime/infrastructure scripts:
 - `scripts/git-poll.js`: polling-based repo sync for live preview environments.
 - `scripts/error-reporter.ts`: browser error forwarding helper (Bubble endpoint).
 - `scripts/db-init.js`: database migration helper used in DB workflow contexts.
+- `scripts/local-db-proxy.ts`: dev-only Data API for the Turso database (`/__local-db/v1`), loaded in `vite.config.ts`; used in `pnpm dev` and the RiverX preview. See `DATABASE.md`.
+- `server/db.ts`: Data API handler and SQL guard (no DDL, one statement per query, no writes to system tables, 1,000-row cap) behind the dev proxy.
 
 ## Safe Modification Guide
 

@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { localDbProxy } from "./scripts/local-db-proxy";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +30,7 @@ export default defineConfig(({ command }) => {
 
   return {
     base: "/",
-    plugins: [react()],
+    plugins: [react(), localDbProxy()],
     server: {
       host: "0.0.0.0",
       port,
