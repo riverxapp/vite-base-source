@@ -52,7 +52,7 @@ Dev runtime defaults:
 Copy `.env.example` to `.env` (or `.env.local`) and adjust as needed.
 
 - `VITE_APP_NAME`: App display name in header and UI. Default: `RiverX App`
-- `VITE_API_BASE_URL`: Base URL for API wrapper in `src/lib/api.ts`. Default: `/api`
+- `VITE_API_BASE_URL`: Base URL for API wrapper in `src/lib/api.ts`. Default: empty (same origin). Do not use `/api`; the RiverX workspace preview reserves it.
 
 ## Project Structure
 
