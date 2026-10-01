@@ -14,6 +14,12 @@ Change boundaries and placement rules for the RiverX base Vite template.
 1. Define routes in `src/app/routes.tsx`.
 2. Keep route-level views in `src/pages`.
 3. Keep shell composition in `src/components/layout`.
+4. The RiverX editor preview serves the app under `/preview/<session>/__frame/`, so the router must take that prefix as its `basename`, or every route shows the 404 page in the preview:
+   ```ts
+   const previewBasename = window.location.pathname.match(/^\/preview\/[^/]+\/__frame/)?.[0];
+   export const router = createBrowserRouter(routes, { basename: previewBasename });
+   ```
+   Navigate with `<Link>` / `useNavigate`, never `window.location`, so the prefix is kept.
 
 ## Component Rules
 
