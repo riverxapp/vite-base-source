@@ -33,10 +33,10 @@ All of these are **injected by the platform. Do not edit `.env.local` by hand**,
 |---|---|---|
 | `VITE_RIVERX_DB_URL` | `.env.local`, Vite env, Vercel env | App (browser). Data API base URL, e.g. `https://agent.riverx.app/db/v1` |
 | `VITE_RIVERX_DB_KEY` | `.env.local`, Vite env, Vercel env | App (browser). Publishable key `rxdb_pk_…`, safe to ship |
-| `TURSO_DATABASE_URL` | Process env of the dev server and workspace terminal **only** | `drizzle-kit` (schema changes) |
-| `TURSO_AUTH_TOKEN` | Process env of the dev server and workspace terminal **only** | `drizzle-kit` (schema changes) |
+| `TURSO_DATABASE_URL` | Process env of the dev server and workspace terminal; Vercel env (sensitive), set on publish | `drizzle-kit` (schema changes); server functions, if you add any |
+| `TURSO_AUTH_TOKEN` | Process env of the dev server and workspace terminal; Vercel env (sensitive), set on publish | `drizzle-kit` (schema changes); server functions, if you add any |
 
-`TURSO_*` values are full-access credentials. They are never written to disk. Never read them from `src/`, never copy them into a file, and never prefix them with `VITE_`.
+`TURSO_*` values are full-access credentials for this project's database only. They are never written to disk. Never read them from `src/`, never copy them into a file, and never prefix them with `VITE_`.
 
 Make sure `.gitignore` contains:
 
@@ -268,8 +268,10 @@ Errors come back as `{ error, code }` and surface as thrown errors from `apiRequ
 ## 8. Publishing
 
 - RiverX adds `VITE_RIVERX_DB_URL` / `VITE_RIVERX_DB_KEY` to the Vercel env **before** the build. Vite inlines `import.meta.env.VITE_*` at build time.
+- RiverX also sets `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` as **sensitive** Vercel variables (production and preview, readable only by server code). This app doesn't use them, but server functions you add under `api/` can read them from `process.env` and query Turso directly with `@libsql/client`. Once every query goes through such a server route behind a login, stop sending the publishable key from production builds (see `src/lib/env.ts` in the CRM, booking or ticketing template).
 - The published domain and any custom domain are added to the database's allowed origins automatically.
 - **Rotating the publishable key requires a redeploy.** The old key is baked into the existing bundle.
+- The Data tab's **Key** button generates a new `TURSO_AUTH_TOKEN` and revokes the old one at once. RiverX updates the Vercel env, redeploys production and restarts the preview. It does not change the publishable key.
 
 ## 9. Troubleshooting
 
